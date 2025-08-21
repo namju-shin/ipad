@@ -46,12 +46,15 @@ const searchDelayEls = [...searchWrapEl.querySelectorAll('li')];
 const searchInputEl = searchWrapEl.querySelector('input');
 
 searchStarterEl.addEventListener('click', showSearch);
-searchCloserEl.addEventListener('click', hideSearch);
+searchCloserEl.addEventListener('click', function (event) {
+  event.stopPropagation();
+  hideSearch();
+} );
 shadowEl.addEventListener('click', hideSearch);
 
 function showSearch() {
   headerEl.classList.add('searching');
-  document.documentElement.classList.add('fixed');
+  stopScroll();
   headerMenuEls.reverse().forEach(function (el, index) {
     el.style.transitionDelay = (index * 0.4) / headerMenuEls.length +'s';
   });
@@ -64,7 +67,7 @@ function showSearch() {
 };
 function hideSearch() {
   headerEl.classList.remove('searching');
-  document.documentElement.classList.remove('fixed');
+  playScroll();
   headerMenuEls.reverse().forEach(function (el, index) {
     el.style.transitionDelay = (index * 0.4) / headerMenuEls.length +'s';
   });
@@ -73,6 +76,76 @@ function hideSearch() {
   });
   searchInputEl.value = '';
 };
+function playScroll() {
+  document.documentElement.classList.remove('fixed');
+}
+function stopScroll() {
+  document.documentElement.classList.add('fixed');
+}
+
+
+// header - menu togger
+const menuStarterEl = document.querySelector('header .menu-starter');
+menuStarterEl.addEventListener('click', function () {
+  if (headerEl.classList.contains('menuing')) {
+    headerEl.classList.remove('menuing');
+    searchInputEl.value = '';
+    playScroll();
+  } else {
+    headerEl.classList.add('menuing');
+    stopScroll();
+  }
+})
+
+
+// header - search
+const searchTextFieldEl = document.querySelector('header .textfield');
+const searchCancelEl = document.querySelector('header .search-canceler');
+searchTextFieldEl.addEventListener('click', function () {
+  headerEl.classList.add('searching--mobile');
+  searchInputEl.focus();
+})
+searchCancelEl.addEventListener('click', function () {
+  headerEl.classList.remove('searching--mobile');
+})
+
+
+// header - search web <-> search mobile
+window.addEventListener('resize', function () {
+  if (window.innerWidth <= 740) { // mobile
+    headerEl.classList.remove('searching');
+  } else {
+    headerEl.classList.remove('searching--mobile');
+    // headerEl.classList.remove('menuing');
+  }
+});
+
+
+// nav
+const navEl = document.querySelector('nav');
+const navMenuToggleEl = navEl.querySelector('.menu-toggler');
+const navMenuShadowEl = navEl.querySelector('.shadow')
+
+navMenuToggleEl.addEventListener('click', function () {
+  if (navEl.classList.contains('menuing')) {
+    hideNavMenu();
+  } else {
+    showNavMenu();
+  }
+  
+});
+navEl.addEventListener('click', function (event) {
+  event.stopPropagation();
+});
+navMenuShadowEl.addEventListener('click', hideNavMenu);
+window.addEventListener('click', hideNavMenu);
+
+function showNavMenu() {
+  navEl.classList.add('menuing');
+}
+function hideNavMenu() {
+  navEl.classList.remove('menuing');
+}
 
 
 // generate icon frames
@@ -170,6 +243,7 @@ navigations.forEach(function (navigation) {
   mapEl.innerHTML = /* html */ `
     <h3>
       <span class="text">${navigation.title}</span>
+      <span class="icon">+</span>
     </h3>
     <ul>
       ${mapList}
@@ -178,6 +252,15 @@ navigations.forEach(function (navigation) {
 
   navigationsEl.append(mapEl);
 });
+
+
+const mapEls = document.querySelectorAll('footer .navigations .map');
+mapEls.forEach(function (el) {
+  const h3El = el.querySelector('h3');
+  h3El.addEventListener('click', function () {
+    el.classList.toggle('active');
+  });
+})
 
 
 // footer - copyright 올해
