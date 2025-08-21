@@ -238,7 +238,7 @@ a.link::after {
   }
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 740px) {
   .info {
     max-width: none;
     padding: 0 20px;
